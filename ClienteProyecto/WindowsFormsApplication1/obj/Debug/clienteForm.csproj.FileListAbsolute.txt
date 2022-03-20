@@ -124,3 +124,12 @@ C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_ver1\ClienteProyecto\WindowsFormsAppli
 C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_ver1\ClienteProyecto\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
 C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_ver1\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_ver1\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\clienteForm.csprojAssemblyReference.cache
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Form1.resources
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.GenerateResource.cache
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\clienteForm.csproj.CoreCompileInputs.cache
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
+C:\SO\ProyectoSO\ProyectoGrupo6\ClienteProyecto\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
