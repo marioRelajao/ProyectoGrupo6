@@ -180,6 +180,7 @@ namespace WindowsFormsApplication1
                 listaJugadores.RowCount = numJug;
                 for (int i = 0; i < numJug; i++)
                 {
+                    listaJugadores.Rows[i].DefaultCellStyle.ForeColor = Color.Black;
                     listaJugadores.Rows[i].Cells[0].Value = mensaje.Split('/')[i+1];
                 }
                 listaJugadores.Refresh();
