@@ -8,23 +8,27 @@ using System.Text;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
     {
         Socket server;
+        Thread atender;
         Image[] imgArray = new Image[70];
         WMPLib.WindowsMediaPlayer player = new WMPLib.WindowsMediaPlayer();
         WMPLib.WindowsMediaPlayer player2 = new WMPLib.WindowsMediaPlayer();
-
+        //string mensaje;
         public Form1()
         {
             InitializeComponent();
+            //CheckForIllegalCrossThreadCalls = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            listaJugadores.ColumnCount = 1;
             this.BackgroundImage = Image.FromFile("bg.jpg");
             var img = Image.FromFile("cartas.jpg");
             for (int i=0;i < 10; i++)
@@ -39,7 +43,172 @@ namespace WindowsFormsApplication1
                 }
             }
             testCarta1.Image = imgArray[10];
+        }
 
+        private void AtenderServidor() 
+        { 
+            while (true)
+            {
+                //Recibimos mensaje del servidor
+                byte[] msg2 = new byte[80];
+                server.Receive(msg2); 
+                string mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                //mensaje = trozos[0].Split('\0');
+                MessageBox.Show(mensaje,userLog.Text);
+                string [] trozos= mensaje.Split('/'); 
+                int codigo = Convert.ToInt32(trozos[0]);
+
+                switch (codigo)
+                {
+                    case 1: //Jugadores en una fecha determinada  pepe/maria/jose
+                        //MessageBox.Show(trozos[1].Replace("/", ", "), "Aqui tienes a tus jugadores");
+                        if(trozos[1]=="NOK")
+                        {
+                            MessageBox.Show("No se ha encontrado ningún jugador en esta fecha");
+                        }
+                        else
+                        {
+                            string result = trozos[1];
+                            for (int g = 2; g < trozos.Length; g++)
+                            {
+                                result = result + ", " + trozos[g];
+                            }
+                            MessageBox.Show(result, "Aqui tienes a tus jugadores");
+                        }     
+                        break;
+
+                    case 2: //Jugador con mas partidas ganadas  
+                            
+                        if (trozos[1] == "NOK")
+                            {
+                                MessageBox.Show("No hemos obtenido resultados", "Error");
+                            }
+                            else
+                            {
+                                MessageBox.Show(trozos[1], "Aqui tienes tu consulta");
+                            }
+                            break;
+
+                    case 3: //Cuantos jugadores hay en una partida, recibimos 3/NOK o 3/NumJugadores
+                        
+                        if (trozos[1] == "NOK")
+                        {
+                            MessageBox.Show($"La partida con ID: {idpartida.Text} no existe o no tiene jugadores", "Consulta");
+                        }
+                        else
+                        {
+                            MessageBox.Show($"En la partida {idpartida.Text} hay {trozos[1]} jugadores", "Aqui tienes tu consulta");
+                        }
+                        break;
+
+                    case 4:  //Recibimos la respuesta del servidor en formato 4/NOK si hay  error o bien 4/el nº de partidas ganada
+                        
+                        if (trozos[1] == "NOK")
+                        {
+                            MessageBox.Show($"{userName.Text} no existe o bien no ha ganado ninguna partida", "Consulta");
+                        }
+                        else
+                        {
+                            MessageBox.Show($"{userName.Text} ha ganado {trozos[1]} partidas", "Aqui tienes tu consulta");
+                        }
+                        break;
+
+                    case 5: //registro, devuelve 5/MAL O 5/BIEN
+                        
+                        if (trozos[1]=="MAL")
+                        {
+                            MessageBox.Show("No se ha podido registrar");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Registrado correctamente");
+                        }
+                        //MessageBox.Show(mensaje);
+                        break;
+
+                    case 6: //Hacemos login, nos llega 6/SI/7/Jugador1/jugadorN
+                        
+                        if (trozos[1] == "SI")
+                        {
+                            MessageBox.Show("Has iniciado sesion correctamente", "Log In");
+                            //Invocamos al thread original para poder realizar la accion y que c# no se queje
+                            Invoke(new Action(() =>
+                            {
+                                this.Text = this.Text + " - " + userLog.Text;
+                                int x = 0;
+                                listaJugadores.Rows.Clear();
+                                for (int i = 3; i < trozos.Length; i++)
+                                {
+                                    listaJugadores.Rows.Add(trozos[i]);
+                                    listaJugadores.Rows[x].DefaultCellStyle.ForeColor = Color.Black;
+                                    x++;
+                                }
+                                listaJugadores.Refresh();
+                                consultasGrupo.Enabled = true;
+                                groupLogin.Visible = false;
+                                groupRegistro.Visible = false;
+                                consultasGrupo.Visible = true;
+                                testCarta1.Visible = true;
+                                button2.Visible = true;
+                                idCarta.Visible = true;
+                                consultasGrupo.Location = new Point(12, 104);
+                            }));
+                            
+                        }
+                        else if (mensaje == "NOK")
+                        {
+                            MessageBox.Show("Revisa los datos o registrate primero", "Error");
+                        }
+                        break;
+
+                    case 7:
+                        //mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
+                        //MessageBox.Show(trozos[1]);
+                        //listaJugadores.RowCount = numJug;
+                        Invoke(new Action(() =>
+                        {
+                            int x = 0;
+                            listaJugadores.Rows.Clear();
+                            for (int i = 1; i < trozos.Length; i++)
+                            {
+                                listaJugadores.Rows.Add(trozos[i]);
+                                listaJugadores.Rows[x].DefaultCellStyle.ForeColor = Color.Black;
+                                //listaJugadores.Rows[i].Cells[0].Value = trozos[i];
+                                x++;
+                            }
+                            listaJugadores.Refresh();
+                        }));
+                        break;
+
+                    case 8://el jugador es invitado a una partida, recibe 8/jugador que le invita/id partida
+                        DialogResult siono = MessageBox.Show($"Te invita a jugar {trozos[1]}, ¿Aceptas?","Invitación", MessageBoxButtons.YesNo);
+                        if (siono==DialogResult.Yes)
+                        {
+                            string mensaje2 = "9/SI/"+trozos[2];
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje2);
+                            server.Send(msg);
+                        }
+                        else if (siono==DialogResult.No)
+                        {
+                            string mensaje2 = "9/NO/" + trozos[2];
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje2);
+                            server.Send(msg);
+                        }
+                        break;
+
+                    case 9://el jugador invitado responde a la invitacion, recibimos 9/SI/idpartida o 9/NO/idpartida
+                        if (trozos[1]=="SI")
+                        {
+                            MessageBox.Show("El jugador ha aceptado la petición", userLog.Text);
+                        }
+                        else
+                        {
+                            MessageBox.Show("El jugador ha rechazado la petición");
+                        }
+
+                        break;
+                }
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -47,8 +216,9 @@ namespace WindowsFormsApplication1
 
             //Creamos un IPEndPoint con el ip del servidor y puerto del servidor 
             //al que deseamos conectarnos
+            
             IPAddress direc = IPAddress.Parse("192.168.56.102");
-            IPEndPoint ipep = new IPEndPoint(direc, 9040);
+            IPEndPoint ipep = new IPEndPoint(direc, 9090);
 
             //Memillo de la musica
 
@@ -73,6 +243,10 @@ namespace WindowsFormsApplication1
                 return;
             }
 
+            ThreadStart ts = delegate { AtenderServidor(); };
+            atender = new Thread(ts);
+            atender.Start();
+
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -85,10 +259,7 @@ namespace WindowsFormsApplication1
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                //Recibimos la respuesta del servidor Juan/Maria/Jose
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2);
+                
 
             }//Mas partidas ganadas
             else if (Consult2.Checked)
@@ -97,21 +268,6 @@ namespace WindowsFormsApplication1
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                mensaje = mensaje.Split('\0')[0];
-                if (mensaje == "NOK")
-                {
-                    MessageBox.Show("No hemos obtenido resultados", "Error");
-                }
-                else
-                {
-                    MessageBox.Show(mensaje, "Aqui tienes tu consulta");
-                }
-
 
             }
             //Cuantos jugadores hay en una partida (Lidi)
@@ -122,20 +278,6 @@ namespace WindowsFormsApplication1
                 // Enviamos al servidor el nombre tecleado
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
-
-                //Recibimos la respuesta del servidor
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                mensaje = mensaje.Split('\0')[0];
-                if (mensaje == "NOK")
-                {
-                    MessageBox.Show($"La partida con ID: {idpartida.Text} no existe o no tiene jugadores", "Consulta");
-                }
-                else
-                {
-                    MessageBox.Show($"En la partida {idpartida.Text} hay {mensaje} jugadores", "Aqui tienes tu consulta");
-                }
             }
             //Consulta 4, miramos el nombre de un jugador y nos dice cuantas partidas ha ganado
             else if (Consulta4.Checked)
@@ -145,46 +287,17 @@ namespace WindowsFormsApplication1
                 byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
                 server.Send(msg);
 
-                //Recibimos la respuesta del servidor en formato NOK si hay  error o bien el nº de partidas ganadas
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                mensaje = mensaje.Split('\0')[0];
-                if (mensaje == "NOK")
-                {
-                    MessageBox.Show($"{userName.Text} no existe o bien no ha ganado ninguna partida", "Consulta");
-                }
-                else
-                {
-                    if (userName.Text == "Pingu") 
-                    {
-                        
-                    }
-                    MessageBox.Show($"{userName.Text} ha ganado {mensaje} partidas", "Aqui tienes tu consulta");
-                }
+               
             }
             //El usuario pide la lista de conectados
-            else
-            {
-                string mensaje = "7/";
+            //else
+            //{
+            //    string mensaje = "7/";
                 // Enviamos el código 7
-                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
-                server.Send(msg);
+            //    byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            //    server.Send(msg);
 
-                //Recibimos la respuesta del servidor en formato NUMJUGADORES/USER/USER/USER
-                byte[] msg2 = new byte[80];
-                server.Receive(msg2);
-                mensaje = Encoding.ASCII.GetString(msg2).Split('\0')[0];
-                mensaje = mensaje.Split('\0')[0];
-                int numJug = Convert.ToInt32(mensaje.Split('/')[0]);
-                listaJugadores.RowCount = numJug;
-                for (int i = 0; i < numJug; i++)
-                {
-                    listaJugadores.Rows[i].DefaultCellStyle.ForeColor = Color.Black;
-                    listaJugadores.Rows[i].Cells[0].Value = mensaje.Split('/')[i+1];
-                }
-                listaJugadores.Refresh();
-            }
+            //}
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -195,6 +308,7 @@ namespace WindowsFormsApplication1
             server.Send(msg);
 
             // Nos desconectamos
+            atender.Abort();
             this.BackColor = Color.Gray;
             server.Shutdown(SocketShutdown.Both);
             server.Close();
@@ -213,15 +327,6 @@ namespace WindowsFormsApplication1
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
 
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('/')[1];
-            MessageBox.Show(mensaje);
-
-
-
-
         }
 
         private void LogIn_Click(object sender, EventArgs e)
@@ -231,28 +336,7 @@ namespace WindowsFormsApplication1
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
 
-            //Recibimos la respuesta del servidor
-            byte[] msg2 = new byte[80];
-            server.Receive(msg2);
-            mensaje = Encoding.ASCII.GetString(msg2).Split('/')[1];
-            mensaje = mensaje.Split('\0')[0];
-            if (mensaje == "SI") 
-            {
-                MessageBox.Show("Has iniciado sesion correctamente", "Log In");
-                consultasGrupo.Enabled = true;
-                groupLogin.Visible = false;
-                groupRegistro.Visible = false;
-                consultasGrupo.Visible = true;
-                testCarta1.Visible = true;
-                button2.Visible = true;
-                idCarta.Visible = true;
-                consultasGrupo.Location = new Point(12, 154);
-            }
-            else if (mensaje == "NOK")
-            {
-                MessageBox.Show("Revisa los datos o registrate primero", "Error");
-            }
-
+ 
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -313,10 +397,19 @@ namespace WindowsFormsApplication1
             string mensaje = "0/";
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
             server.Send(msg);
-
+            atender.Abort();
             // Nos desconectamos
             server.Shutdown(SocketShutdown.Both);
             server.Close();
         }
+
+        private void InvitarJugador_Click(object sender, EventArgs e)
+        {
+            string mensaje = "8/"+listaJugadores.CurrentCell.Value.ToString();
+            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+            server.Send(msg);
+        }
+
+        
     }
 }
