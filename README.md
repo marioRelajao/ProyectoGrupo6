@@ -17,4 +17,6 @@ URL https://www.youtube.com/watch?v=mVJr_fcmPcU
 URL https://youtu.be/1QOtleDQaFM  
 
 "Versión 4 generada por Lidia"  
+"Versión 4 verificada por Ines"  
+
   
