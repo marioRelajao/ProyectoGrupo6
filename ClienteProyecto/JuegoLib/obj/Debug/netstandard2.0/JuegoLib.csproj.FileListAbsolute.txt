@@ -1,0 +1,9 @@
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\bin\Debug\netstandard2.0\JuegoLib.deps.json
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\bin\Debug\netstandard2.0\JuegoLib.dll
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\bin\Debug\netstandard2.0\JuegoLib.pdb
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.csprojAssemblyReference.cache
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.AssemblyInfoInputs.cache
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.AssemblyInfo.cs
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.csproj.CoreCompileInputs.cache
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.dll
+C:\Users\Mario\Desktop\UNI\2B\SO\Proyecto_SinCalle\ClienteProyecto\JuegoLib\obj\Debug\netstandard2.0\JuegoLib.pdb
